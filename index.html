@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pixel Factory (Account System)</title>
+    <style>
+        /* --- Default Dark Mode Variables --- */
+        body {
+            /* Fallback colors */
+            --bg-color: #282c34;
+            --text-color: #e6e6e6;
+            --main-accent: #61dafb;
+            --panel-bg: #383c44;
+            --panel-border: #444;
+            --button-primary: #4CAF50;
+            --button-logout: #f44336;
+        }
+
+        /* --- Light Mode Overrides (Applied via .light-mode class on body) --- */
+        .light-mode {
+            --bg-color: #f0f2f5;
+            --text-color: #24292e;
+            --main-accent: #0366d6;
+            --panel-bg: #ffffff;
+            --panel-border: #ddd;
+            --button-primary: #28a745;
+            --button-logout: #d73a49;
+        }
+
+        /* --- General Styles (Using Variables) --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+            
+            /* Apply variables */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        h1 {
+            color: var(--main-accent);
+        }
+
+        /* Top Bar Buttons Positioning (Settings and Update Log) */
+        #top-buttons {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .top-icon-button {
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: var(--panel-border);
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 100;
+        }
+        .top-icon-button:hover {
+            color: var(--main-accent);
+        }
+        
+        /* Modal Panel Styling */
+        .modal-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 99;
+            padding-top: 50px;
+            overflow: auto;
+        }
+        .modal-content {
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+        .close-button {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        #current-user-settings { 
+            font-size: 16px;
+            color: var(--main-accent);
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Main Button */
+        #main-button {
+            background-color: var(--main-accent);
+            color: var(--bg-color); /* Contrast for button text */
+            border: none;
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.1s, transform 0.1s;
+            margin: 20px;
+        }
+        #main-button:active { transform: scale(0.98); }
+        
+        /* Stats Panel & Upgrades */
+        .stats-panel {
+            margin: 20px auto; padding: 15px; border: 1px solid var(--panel-border); border-radius: 5px;
+            width: 80%; max-width: 400px; background-color: var(--panel-bg);
+        }
+        .upgrade-card {
+            background-color: var(--panel-bg); 
+            padding: 15px; border-radius: 8px;
+            width: 90%; max-width: 500px; 
+            border-left: 5px solid var(--main-accent);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .upgrade-card p { color: var(--text-color); opacity: 0.8; }
+        
+        /* Upgrade Buttons */
+        .upgrade-button {
+            background-color: var(--button-primary); 
+            color: white; border: none; padding: 10px 20px;
+            text-align: center; text-decoration: none; display: inline-block;
+            font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+        .upgrade-button:disabled { 
+            background-color: var(--panel-border); 
+            cursor: not-allowed; opacity: 0.6;
+            color: var(--bg-color); 
+        }
+        .logout-button { background-color: var(--button-logout); }
+        
+        /* Forms */
+        .account-form {
+            width: 300px; margin: 50px auto; padding: 20px; border: 1px solid var(--panel-border);
+            border-radius: 10px; background-color: var(--panel-bg);
+        }
+        .account-form input {
+            width: calc(100% - 20px); padding: 10px; margin: 8px 0; border: 1px solid var(--panel-border);
+            border-radius: 4px; box-sizing: border-box;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        #backup-area {
+            border: 1px dashed var(--panel-border);
+            padding: 15px;
+            margin: 20px 0;
+        }
+        #backup-textarea {
+            width: 90%; height: 60px; margin-top: 10px; resize: none;
+            background-color: var(--bg-color); color: var(--text-color);
+            border: 1px solid var(--panel-border);
+        }
+
+        /* Admin Tag Style */
+        #admin-tag {
+            color: #FFD700; /* Gold */
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: -15px; 
+            margin-bottom: 10px;
+            display: none; 
+        }
+
+
+        #upgrades, #game-content { display: none; }
+    </style>
+</head>
+<body onload="initializeTheme();">
+
+    <div id="update-log-panel" class="modal-panel">
+        <div class="modal-content">
+            <span class="close-button" onclick="toggleUpdateLog()">&#x2715;</span>
+            <h2 style="color: var(--main-accent);">Update Log</h2>
+            <p style="font-size: 14px;">Current Version: <span id="current-version"></span></p>
+            <hr>
+            <div id="log-history">
+                </div>
+        </div>
+    </div>
+    
+    <div id="settings-panel" class="modal-panel">
+        <div id="settings-content" class="modal-content">
+            <span id="close-settings-button" class="close-button" onclick="toggleSettings()">&#x2715;</span>
+            <h2 style="color: var(--main-accent);">Game Settings</h2>
+            
+            <span id="current-user-settings"></span>
+            
+            <hr>
+            
+            <h3 style="margin-top: 15px;">Interface</h3>
+            <p>
+                <button class="upgrade-button" style="background-color: #FF5722;" onclick="toggleTheme()">Toggle Light / Dark Mode</button>
+                (Current: <span id="theme-status">Dark</span>)
+            </p>
+            <hr>
+
+            <h3 style="margin-top: 30px; color: #FF9800;">Cross-Device Save Sync</h3>
+            <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-color); opacity: 0.9;">
+                **How to sync your save to another device (e.g., PC to Phone):**
+                <br>1. On this device, click **Export Save Code** below.
+                <br>2. On the other device, log in, open Settings, paste the code into the box, and click **Import Save Code**.
+            </p>
+
+            <div id="backup-area">
+                <h3>Manual Backup/Restore</h3>
+                <textarea id="backup-textarea" placeholder="Paste your save code here to restore." onfocus="this.select()"></textarea>
+                <br>
+                <button class="upgrade-button" style="background-color: #FF9800;" onclick="exportGame()">Export Save Code</button>
+                <button class="upgrade-button" style="background-color: #00BCD4;" onclick="importGame(document.getElementById('backup-textarea').value)">Import Save Code</button>
+                <p id="save-status-settings" style="font-size: 12px; color: var(--text-color); opacity: 0.7; margin-top: 10px;"></p>
+            </div>
+            
+            <hr>
+
+            <h3 style="margin-top: 30px;">User Controls</h3>
+            <p>
+                <button class="upgrade-button logout-button" onclick="confirmLogout()">Log Out & Save</button>
+                (Saves current progress to your account and returns to login screen.)
+            </p>
+        </div>
+    </div>
+
+
+    <div id="auth-screen">
+        <div class="account-form">
+            <h2>Welcome, Coder!</h2>
+            <p id="auth-message" style="color: yellow;"></p>
+
+            <input type="text" id="username-input" placeholder="Username (CoderName)" required>
+            <input type="password" id="password-input" placeholder="Password" required>
+            
+            <button class="upgrade-button" style="background-color: #2196F3;" onclick="login()">Log In</button>
+            <button class="upgrade-button" onclick="signUp()">Sign Up</button>
+        </div>
+    </div>
+    
+    <div id="game-content">
+        
+        <div id="top-buttons">
+             <button id="log-button" class="top-icon-button" onclick="toggleUpdateLog()">&#x1F4DD;</button> 
+            <button id="settings-button" class="top-icon-button" onclick="toggleSettings()">&#x2699;</button> 
+        </div>
+
+        <p style="text-align: right; margin: 0 50px;"></p>
+
+        <div class="stats-panel">
+            <p>Pixels: <span id="pixels">0</span></p>
+            <p>Pixels per Second (PPS): <span id="pps">0.0</span></p>
+            <p>Click Power: <span id="click-power">1</span></p>
+        </div>
+
+        <button id="main-button" onclick="clickPixel()">GENERATE PIXEL</button>
+        
+        <p id="admin-tag">ADMIN</p>
+
+        <div style="margin-top: 15px;">
+            <button id="save-button" class="upgrade-button" onclick="saveGame()">Save Game</button>
+            <button id="load-button" class="upgrade-button" style="background-color: #2196F3;" onclick="loadGame(currentUser)">Load Game</button>
+            <p id="save-status" style="font-size: 12px; color: var(--text-color); opacity: 0.7;"></p>
+        </div>
+
+        <h2>Upgrades</h2>
+        <div id="upgrades">
+            </div>
+        
+        <hr style="width: 50%; margin-top: 40px; border-color: var(--panel-border);">
+        <h2>Leaderboard (Local Highest Score)</h2>
+        <p style="font-size: 14px; color: var(--text-color); opacity: 0.7;">Highest Score wins (Total Pixels Earned).</p>
+        <div id="leaderboard" style="width: 80%; max-width: 400px; margin: 10px auto; text-align: left;">
+            </div>
+    </div>
+
+    <script>
+        // --- Game Version and Update Log Data ---
+        const gameVersion = "1.0.10";
+        const updateLog = [
+            // REVISED LOG ENTRY
+            { version: "1.0.10", date: "Oct 2025", notes: ["Patched bug."]}, 
+            // END REVISED ENTRY
+            { version: "1.0.9", date: "Oct 2025", notes: ["Internal update: Added conditional feature logic."]},
+            { version: "1.0.8", date: "Oct 2025", notes: ["Added clear instructions to the Settings panel explaining how to use the Export/Import feature to synchronize your save across multiple devices (the cloud save equivalent).", "Updated the logout confirmation to remind users about cross-device sync."]},
+            { version: "1.0.7", date: "Oct 2025", notes: ["Added **Dark Mode / Light Mode toggle** to the Settings Panel.", "Light Mode is saved to the browser's local storage.", "Implemented CSS variables for cleaner theme switching."]},
+            { version: "1.0.6", date: "Oct 2025", notes: ["Added a dedicated **Update Log button (notepad icon)** and panel to display version history.", "Grouped the Settings and Update Log buttons into a single top-left corner UI element."]},
+            { version: "1.0.5", date: "Oct 2025", notes: ["Moved the user display (\"Logged in as: [User]\") to the top of the Settings Panel for better account management clarity.", "Cleaned up the main game content area by removing the visible user display."]},
+            { version: "1.0.4", date: "Oct 2025", notes: ["Added a **Settings button (cog icon)** to the top left.", "Moved the manual Save/Restore (Export/Import) functionality behind the Settings button for a cleaner main screen."]},
+            { version: "1.0.3", date: "Oct 2025", notes: ["Implemented a Manual Export/Import save feature to prevent progress loss from local storage errors.", "Added save/load status updates on the main screen."]},
+            { version: "1.0.2", date: "Oct 2025", notes: ["Implemented Local Account system (Sign Up/Log In).", "Leaderboard now tracks high scores by username and displays the player name."]},
+            { version: "1.0.1", date: "Oct 2025", notes: ["Initial Release: Idle pixel generation game with click upgrades, automated generators, and local leaderboard."] }
+        ];
+
+
+        // --- Global State Variables ---
+        let pixels = 0;
+        let clickPower = 1;
+        let pps = 0; 
+        let gameStartTime = Date.now();
+        let totalPixelsEarned = 0; 
+        let currentUser = null; 
+        let isAdmin = false; 
+        let gameLoopInterval = null; 
+        let saveLoopInterval = null; 
+
+        // --- Upgrade Data ---
+        const upgrades = [
+            { id: 'robot', name: 'Robot', cost: 10, pps: 0.5, owned: 0 },
+            { id: 'factory', name: 'Small Factory', cost: 100, pps: 5, owned: 0 },
+            { id: 'datacenter', name: 'Data Center', cost: 1000, pps: 50, owned: 0 },
+            { id: 'click_upgrade', name: 'Click Upgrade', cost: 50, clickBoost: 1, owned: 0 },
+        ];
+        
+        upgrades.forEach(u => u.initialCost = u.cost);
+
+        // --- DOM Elements ---
+        const pixelDisplay = document.getElementById('pixels');
+        const ppsDisplay = document.getElementById('pps');
+        const clickPowerDisplay = document.getElementById('click-power');
+        const upgradesContainer = document.getElementById('upgrades');
+        const authScreen = document.getElementById('auth-screen');
+        const gameContent = document.getElementById('game-content');
+        const authMessage = document.getElementById('auth-message');
+        const backupTextarea = document.getElementById('backup-textarea');
+        const settingsPanel = document.getElementById('settings-panel');
+        const saveStatusSettings = document.getElementById('save-status-settings');
+        const currentUserSettings = document.getElementById('current-user-settings');
+        const updateLogPanel = document.getElementById('update-log-panel');
+        const logHistoryDiv = document.getElementById('log-history');
+        const themeStatus = document.getElementById('theme-status');
+        const adminTag = document.getElementById('admin-tag'); 
+
+        // --- Theme Functions ---
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeStatus.textContent = 'Light';
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                themeStatus.textContent = 'Dark';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        function initializeTheme() {
+            // Default to dark mode if no theme is saved
+            const savedTheme = localStorage.getItem('theme') || 'dark'; 
+            applyTheme(savedTheme);
+        }
+
+        // --- UI Control Functions ---
+
+        function toggleSettings() {
+            if (updateLogPanel.style.display === 'block') {
+                updateLogPanel.style.display = 'none';
+            }
+            if (settingsPanel.style.display === 'block') {
+                settingsPanel.style.display = 'none';
+            } else {
+                currentUserSettings.textContent = `Logged in as: ${currentUser}`;
+                settingsPanel.style.display = 'block';
+                backupTextarea.value = ''; 
+                saveStatusSettings.textContent = 'Use Export to generate save code.';
+            }
+        }
+        
+        function toggleUpdateLog() {
+            if (settingsPanel.style.display === 'block') {
+                settingsPanel.style.display = 'none';
+            }
+            if (updateLogPanel.style.display === 'block') {
+                updateLogPanel.style.display = 'none';
+            } else {
+                updateLogPanel.style.display = 'block';
+                displayUpdateLog();
+            }
+        }
+        
+        function displayUpdateLog() {
+            document.getElementById('current-version').textContent = gameVersion;
+            logHistoryDiv.innerHTML = '';
+            
+            updateLog.forEach(log => {
+                const section = document.createElement('div');
+                section.style.marginBottom = '20px';
+                
+                const header = document.createElement('h4');
+                header.innerHTML = `Version <strong>${log.version}</strong> <span style="font-weight: normal; color: var(--text-color); opacity: 0.8;">(${log.date})</span>`;
+                section.appendChild(header);
+
+                const ul = document.createElement('ul');
+                ul.style.paddingLeft = '20px';
+                ul.style.listStyleType = 'disc';
+                
+                log.notes.forEach(note => {
+                    const li = document.createElement('li');
+                    li.textContent = note;
+                    ul.appendChild(li);
+                });
+                
+                section.appendChild(ul);
+                logHistoryDiv.appendChild(section);
+            });
+        }
+        
+        function confirmLogout() {
+             const message = "Are you sure you want to Log Out? Your current game will be saved to your account **on this device**. To transfer your save to another device, use the Export/Import feature in Settings.";
+             if (confirm(message)) {
+                logout();
+                toggleSettings(); 
+             }
+        }
+
+
+        // --- Authentication Functions ---
+
+        function getAccounts() {
+            return JSON.parse(localStorage.getItem('pixelFactoryAccounts')) || {};
+        }
+
+        function displayAuthMessage(message) {
+            authMessage.textContent = message;
+            setTimeout(() => authMessage.textContent = '', 3000);
+        }
+
+        function signUp() {
+            const username = document.getElementById('username-input').value.trim();
+            const password = document.getElementById('password-input').value.trim();
+            
+            if (!username || !password) {
+                displayAuthMessage("Please enter both username and password.");
+                return;
+            }
+
+            let accounts = getAccounts();
+
+            if (accounts[username]) {
+                displayAuthMessage("Username already exists. Try logging in.");
+                return;
+            }
+
+            accounts[username] = { password: password, gameSave: null }; 
+            localStorage.setItem('pixelFactoryAccounts', JSON.stringify(accounts));
+            
+            displayAuthMessage("Sign Up successful! Please log in.");
+        }
+
+        function login() {
+            const username = document.getElementById('username-input').value.trim();
+            const password = document.getElementById('password-input').value.trim();
+            
+            if (!username || !password) {
+                displayAuthMessage("Please enter both username and password.");
+                return;
+            }
+
+            const accounts = getAccounts();
+            const account = accounts[username];
+
+            if (!account || account.password !== password) {
+                displayAuthMessage("Invalid username or password.");
+                return;
+            }
+
+            currentUser = username;
+            
+            // ADMIN CHECK 
+            isAdmin = (currentUser === "Chill_demon88"); 
+            adminTag.style.display = isAdmin ? 'block' : 'none';
+
+            authScreen.style.display = 'none';
+            gameContent.style.display = 'block';
+            
+            loadGame(username); 
+            
+            if (!gameLoopInterval) {
+                startGameLoops();
+            }
+        }
+
+        function logout() {
+            saveGame(); 
+
+            currentUser = null;
+            isAdmin = false; 
+            adminTag.style.display = 'none';
+            
+            clearInterval(gameLoopInterval);
+            clearInterval(saveLoopInterval);
+            gameLoopInterval = null;
+            saveLoopInterval = null;
+            
+            authScreen.style.display = 'block';
+            gameContent.style.display = 'none';
+            
+            displayAuthMessage("Logged out successfully.");
+        }
+
+        // --- Core Game Functions ---
+
+        function updateDisplay() {
+            pixelDisplay.textContent = Math.floor(pixels).toLocaleString();
+            ppsDisplay.textContent = pps.toFixed(1);
+            clickPowerDisplay.textContent = clickPower.toLocaleString();
+
+            upgrades.forEach(upgrade => {
+                const button = document.getElementById(`buy-${upgrade.id}`);
+                if (button) {
+                    button.disabled = pixels < upgrade.cost;
+                    button.textContent = `Buy (${Math.floor(upgrade.cost).toLocaleString()} Pixels)`;
+                }
+            });
+            recordScore(); 
+        }
+
+        function clickPixel() {
+            pixels += clickPower;
+            totalPixelsEarned += clickPower;
+            updateDisplay();
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = upgrades.find(u => u.id === upgradeId);
+            if (!upgrade || pixels < upgrade.cost) return;
+
+            pixels -= upgrade.cost;
+            upgrade.owned++;
+            if (upgrade.pps) pps += upgrade.pps;
+            if (upgrade.clickBoost) clickPower += upgrade.clickBoost;
+
+            upgrade.cost = Math.floor(upgrade.cost * 1.15); 
+            
+            document.getElementById(`owned-${upgrade.id}`).textContent = upgrade.owned;
+            updateDisplay();
+            calculatePPS(); 
+        }
+
+        function calculatePPS() {
+             pps = 0;
+             upgrades.filter(u => u.pps).forEach(u => pps += u.pps * u.owned);
+        }
+        
+        function idleLoop() {
+            const generated = pps / 10;
+            pixels += generated; 
+            totalPixelsEarned += generated;
+            updateDisplay();
+        }
+
+        // --- Manual Export/Import Functions ---
+
+        function getGameDataForExport() {
+            return {
+                p: pixels,
+                c: clickPower,
+                tPE: totalPixelsEarned,
+                u: upgrades.map(u => ({ id: u.id, cost: u.cost, owned: u.owned })),
+                sT: gameStartTime 
+            };
+        }
+
+        function exportGame() {
+            const gameData = getGameDataForExport();
+            const jsonString = JSON.stringify(gameData);
+            const saveCode = btoa(jsonString); 
+            
+            backupTextarea.value = saveCode;
+            backupTextarea.select(); 
+            
+            saveStatusSettings.textContent = 'Exported! Copy the code above.';
+        }
+
+        function importGame(code) {
+            if (!code.trim()) {
+                 saveStatusSettings.textContent = 'Import failed. Paste a code first.';
+                 return;
+            }
+            try {
+                const jsonString = atob(code);
+                const gameData = JSON.parse(jsonString);
+                
+                applyLoadedGameData(gameData);
+                
+                // IMPORTANT: When importing, we save the imported data to the current account's local storage entry.
+                saveGame();
+
+                saveStatusSettings.textContent = 'Import successful! Game state restored and saved to account.';
+                alert('Game successfully imported! Your account save on this device has been updated.');
+                
+            } catch (e) {
+                saveStatusSettings.textContent = 'Import failed. Invalid code.';
+                console.error("Import Error:", e);
+            }
+        }
+        
+        function applyLoadedGameData(gameData) {
+            pixels = gameData.p || 0;
+            clickPower = gameData.c || 1;
+            totalPixelsEarned = gameData.tPE || 0;
+            gameStartTime = gameData.sT || Date.now();
+
+            upgrades.forEach(u => { u.cost = u.initialCost; u.owned = 0; });
+            gameData.u.forEach(savedUpgrade => {
+                const currentUpgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                if (currentUpgrade) {
+                    currentUpgrade.cost = savedUpgrade.cost;
+                    currentUpgrade.owned = savedUpgrade.owned;
+                }
+            });
+
+            calculatePPS();
+            createUpgradeUI();
+            updateDisplay();
+        }
+
+
+        // --- Save and Load Game System (Per-Account) ---
+
+        function saveGame() {
+            if (!currentUser) return; 
+
+            const gameData = getGameDataForExport();
+
+            let accounts = getAccounts();
+            if (accounts[currentUser]) {
+                accounts[currentUser].gameSave = gameData;
+                localStorage.setItem('pixelFactoryAccounts', JSON.stringify(accounts));
+                
+                const status = document.getElementById('save-status');
+                status.textContent = `Game Saved! (${new Date().toLocaleTimeString()})`;
+            }
+        }
+
+        function loadGame(username) {
+            pixels = 0;
+            clickPower = 1;
+            totalPixelsEarned = 0;
+            gameStartTime = Date.now();
+            upgrades.forEach(u => { u.cost = u.initialCost; u.owned = 0; });
+            
+            const accounts = getAccounts();
+            const account = accounts[username];
+
+            if (account && account.gameSave) {
+                applyLoadedGameData(account.gameSave);
+                
+                const status = document.getElementById('save-status');
+                status.textContent = `Game Loaded for ${username}!`;
+
+            } else {
+                 const status = document.getElementById('save-status');
+                 status.textContent = `New Game started for ${username}!`;
+                 calculatePPS();
+                 createUpgradeUI(); 
+                 updateDisplay();
+            }
+        }
+        
+        // --- Leaderboard Functions ---
+
+        function recordScore() {
+            if (!currentUser) return;
+
+            let scores = JSON.parse(localStorage.getItem('pixelFactoryLeaderboard')) || [];
+            
+            const currentScore = {
+                username: currentUser,
+                value: totalPixelsEarned,
+                display: `${Math.floor(totalPixelsEarned).toLocaleString()} Pixels`
+            };
+
+            scores = scores.filter(s => s.username !== currentUser);
+            scores.push(currentScore);
+
+            scores.sort((a, b) => b.value - a.value);
+            scores = scores.slice(0, 10); 
+
+            localStorage.setItem('pixelFactoryLeaderboard', JSON.stringify(scores));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const leaderboardDiv = document.getElementById('leaderboard');
+            let scores = JSON.parse(localStorage.getItem('pixelFactoryLeaderboard')) || [];
+            
+            leaderboardDiv.innerHTML = ''; 
+            
+            if (scores.length === 0) {
+                leaderboardDiv.innerHTML = '<p style="margin-left: 20px;">No high scores recorded yet. Log in and earn pixels!</p>';
+                return;
+            }
+            
+            const ol = document.createElement('ol');
+            ol.style.paddingLeft = '30px';
+            
+            scores.forEach((score, index) => {
+                const isCurrentUser = score.username === currentUser ? 'font-weight: bold; color: var(--main-accent);' : '';
+                const li = document.createElement('li');
+                li.style.cssText = `padding: 5px 0; ${isCurrentUser}`;
+                li.innerHTML = `#${index + 1}: ${score.username} - <strong>${score.display}</strong>`;
+                ol.appendChild(li);
+            });
+            
+            leaderboardDiv.appendChild(ol);
+        }
+
+        // --- Initialization ---
+
+        function createUpgradeUI() {
+            upgradesContainer.innerHTML = ''; 
+            upgrades.forEach(upgrade => {
+                const card = document.createElement('div');
+                card.className = 'upgrade-card';
+                
+                let description = upgrade.pps ? `Generates ${upgrade.pps} PPS` : `Adds ${upgrade.clickBoost} to Click Power`;
+                
+                card.innerHTML = `
+                    <div>
+                        <strong>${upgrade.name}</strong>
+                        <p style="font-size: 14px; margin: 5px 0 0 0; color: var(--text-color); opacity: 0.8;">${description}</p>
+                        <p style="font-size: 12px; margin: 0; color: var(--text-color); opacity: 0.6;">Owned: <span id="owned-${upgrade.id}">${upgrade.owned}</span></p>
+                    </div>
+                `;
+
+                const button = document.createElement('button');
+                button.className = 'upgrade-button';
+                button.id = `buy-${upgrade.id}`;
+                button.textContent = `Buy (${Math.floor(upgrade.cost).toLocaleString()} Pixels)`;
+                button.onclick = () => buyUpgrade(upgrade.id);
+                
+                card.appendChild(button);
+                upgradesContainer.appendChild(card);
+            });
+            updateDisplay();
+        }
+        
+        function startGameLoops() {
+            gameLoopInterval = setInterval(idleLoop, 100); 
+            saveLoopInterval = setInterval(saveGame, 5000); 
+        }
+
+        // Run theme initialization and game setup
+        initializeTheme();
+        createUpgradeUI();
+        displayLeaderboard();
+        
+    </script>
+</body>
+</html>
