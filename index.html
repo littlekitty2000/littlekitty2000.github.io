@@ -3,20 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Builder v1</title>
+    <title>Website Builder v2</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="toolbar">
-        <div class="version-tag">Website Builder v1</div>
+        <div class="version-tag">v2</div>
         <button onclick="addText()">Add Text</button>
-        <button onclick="addButton()">Add MediaFire Button</button>
+        <button onclick="addButton()">Add Button</button>
         
         <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="processImage(this)">
         <button onclick="document.getElementById('imgInput').click()">Upload Icon</button>
         
         <button onclick="addMp3()" style="background:#9b59b6;">Add MP3 Link</button>
+
+        <div class="tool-group">
+            <label>BG Color:</label>
+            <input type="color" id="bgColorPicker" oninput="changeBg(this.value)" value="#ffffff">
+        </div>
+
+        <div class="tool-group">
+            <label>Icon Size:</label>
+            <input type="range" id="sizeSlider" min="30" max="300" value="80" oninput="updateIconSize(this.value)">
+        </div>
         
         <button id="save-btn" onclick="showCode()">Get My Code</button>
     </div>
@@ -36,7 +46,7 @@
 
     <main id="canvas" contenteditable="true">
         <h1>Project Title</h1>
-        <p>Use the toolbar to build your page. Right-click elements to edit or delete.</p>
+        <p>Edit this page, then use 'Get My Code' to save to GitHub.</p>
     </main>
 
     <script src="script.js"></script>
