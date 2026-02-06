@@ -2,7 +2,6 @@ const canvas = document.getElementById('canvas');
 const contextMenu = document.getElementById('context-menu');
 let rightClickedElement = null;
 
-// Context Menu Logic
 canvas.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     rightClickedElement = e.target;
@@ -13,15 +12,14 @@ canvas.addEventListener('contextmenu', (e) => {
 
 document.addEventListener('click', () => contextMenu.style.display = 'none');
 
-// Add Functions
 function addText() {
     const p = document.createElement('p');
-    p.innerText = "Double click to edit text...";
+    p.innerText = "New text block...";
     canvas.appendChild(p);
 }
 
 function addButton() {
-    const url = prompt("MediaFire Link:");
+    const url = prompt("Link:");
     const label = prompt("Button Name:", "Download");
     if(url && label) {
         const a = document.createElement('a');
@@ -48,18 +46,17 @@ function processImage(input) {
 }
 
 function addMp3() {
-    const name = prompt("Song Name:");
-    const url = prompt("Paste Direct MP3 Link (ends in .mp3):");
+    const name = prompt("Track Name:");
+    const url = prompt("Direct MP3 Link:");
     if(name && url) {
         const div = document.createElement('div');
         div.className = 'audio-card';
         div.contentEditable = "false";
-        div.innerHTML = `<span>🎵 <b>${name}</b></span><audio controls src="${url}"></audio>`;
+        div.innerHTML = `<span><b>${name}</b></span><audio controls src="${url}"></audio>`;
         canvas.appendChild(div);
     }
 }
 
-// Menu Actions
 function deleteElement() {
     if (rightClickedElement && rightClickedElement !== canvas) {
         rightClickedElement.closest('.audio-card')?.remove() || rightClickedElement.remove();
@@ -67,16 +64,21 @@ function deleteElement() {
 }
 
 function changeLink() {
-    const url = prompt("Enter MediaFire/Direct URL:");
+    const url = prompt("Enter new URL:");
     if (!url) return;
     if (rightClickedElement.tagName === 'A') {
         rightClickedElement.href = url;
     } else {
-        const a = document.createElement('a');
-        a.href = url;
-        a.contentEditable = "false";
-        rightClickedElement.parentNode.insertBefore(a, rightClickedElement);
-        a.appendChild(rightClickedElement);
+        const parentLink = rightClickedElement.closest('a');
+        if (parentLink) {
+            parentLink.href = url;
+        } else {
+            const a = document.createElement('a');
+            a.href = url;
+            a.contentEditable = "false";
+            rightClickedElement.parentNode.insertBefore(a, rightClickedElement);
+            a.appendChild(rightClickedElement);
+        }
     }
 }
 
