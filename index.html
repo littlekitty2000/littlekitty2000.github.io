@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chill Editor Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div id="toolbar">
+        <button onclick="addText()">+ Text</button>
+        <button onclick="addButton()">+ MediaFire Button</button>
+        
+        <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="processImage(this)">
+        <button onclick="document.getElementById('imgInput').click()">+ Upload Icon</button>
+        
+        <button onclick="addMp3()" style="background:#9b59b6;">+ Add MP3 Link</button>
+        
+        <button id="save-btn" onclick="showCode()">💾 Get My Code</button>
+    </div>
+
+    <!-- Right-Click Menu -->
+    <div id="context-menu">
+        <div class="menu-item" onclick="changeLink()">🔗 Change/Make Link</div>
+        <div class="menu-item delete" onclick="deleteElement()">🗑️ Delete Element</div>
+    </div>
+
+    <!-- Save Modal -->
+    <div id="saveModal" style="display:none;">
+        <div class="modal-content">
+            <h3>Copy this to your GitHub index.html</h3>
+            <textarea id="outputCode" readonly></textarea>
+            <button onclick="document.getElementById('saveModal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <main id="canvas" contenteditable="true">
+        <h1>My New Project</h1>
+        <p>Right-click items to edit links or delete them!</p>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
