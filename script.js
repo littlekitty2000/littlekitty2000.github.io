@@ -12,6 +12,13 @@ canvas.addEventListener('contextmenu', (e) => {
 
 document.addEventListener('click', () => contextMenu.style.display = 'none');
 
+function changeBg(color) { canvas.style.backgroundColor = color; }
+
+function updateIconSize(size) {
+    const icons = canvas.querySelectorAll('.custom-icon');
+    icons.forEach(img => img.style.width = size + 'px');
+}
+
 function addText() {
     const p = document.createElement('p');
     p.innerText = "New text block...";
@@ -34,10 +41,12 @@ function addButton() {
 function processImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
+        const currentSize = document.getElementById('sizeSlider').value;
         reader.onload = (e) => {
             const img = document.createElement('img');
             img.src = e.target.result;
             img.className = "custom-icon";
+            img.style.width = currentSize + 'px';
             img.contentEditable = "false";
             canvas.appendChild(img);
         };
@@ -69,21 +78,17 @@ function changeLink() {
     if (rightClickedElement.tagName === 'A') {
         rightClickedElement.href = url;
     } else {
-        const parentLink = rightClickedElement.closest('a');
-        if (parentLink) {
-            parentLink.href = url;
-        } else {
-            const a = document.createElement('a');
-            a.href = url;
-            a.contentEditable = "false";
-            rightClickedElement.parentNode.insertBefore(a, rightClickedElement);
-            a.appendChild(rightClickedElement);
-        }
+        const a = document.createElement('a');
+        a.href = url;
+        a.contentEditable = "false";
+        rightClickedElement.parentNode.insertBefore(a, rightClickedElement);
+        a.appendChild(rightClickedElement);
     }
 }
 
 function showCode() {
     const area = document.getElementById('outputCode');
-    area.value = `<!DOCTYPE html><html><head><link rel="stylesheet" href="style.css"></head><body>${canvas.innerHTML}</body></html>`;
+    const finalBg = canvas.style.backgroundColor || "#ffffff";
+    area.value = `<!DOCTYPE html><html><head><link rel="stylesheet" href="style.css"></head><body style="background:#f0f2f5"><main style="margin:30px auto; width:85%; max-width:900px; background:${finalBg}; padding:50px; min-height:70vh; border-radius:4px; font-family:sans-serif;">${canvas.innerHTML}</main></body></html>`;
     document.getElementById('saveModal').style.display = 'block';
 }
