@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Builder v2</title>
+    <title>Website Builder v3</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="toolbar">
-        <div class="version-tag">v2</div>
+        <div class="version-tag">v3</div>
         <button onclick="addText()">Add Text</button>
         <button onclick="addButton()">Add Button</button>
         
@@ -19,24 +19,37 @@
         <button onclick="addMp3()" style="background:#9b59b6;">Add MP3 Link</button>
 
         <div class="tool-group">
-            <label>BG Color:</label>
+            <label>BG:</label>
             <input type="color" id="bgColorPicker" oninput="changeBg(this.value)" value="#ffffff">
         </div>
 
         <div class="tool-group">
-            <label>Icon Size:</label>
+            <label>Size:</label>
             <input type="range" id="sizeSlider" min="30" max="300" value="80" oninput="updateIconSize(this.value)">
         </div>
-        
+
+        <button onclick="document.getElementById('loadModal').style.display='block'" style="background:#f39c12;">Load Project</button>
         <button id="save-btn" onclick="showCode()">Get My Code</button>
     </div>
 
+    <!-- Right-Click Menu -->
     <div id="context-menu">
         <div class="menu-item" onclick="changeLink()">Change Link</div>
         <div class="menu-item delete" onclick="deleteElement()">Delete Element</div>
     </div>
 
-    <div id="saveModal" style="display:none;">
+    <!-- Load Modal -->
+    <div id="loadModal" style="display:none;" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Paste HTML to Load</h3>
+            <textarea id="inputCode" placeholder="Paste your saved index.html code here..."></textarea>
+            <button onclick="importHTML()">Import Now</button>
+            <button onclick="document.getElementById('loadModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div id="saveModal" style="display:none;" class="modal-overlay">
         <div class="modal-content">
             <h3>Copy to GitHub index.html</h3>
             <textarea id="outputCode" readonly></textarea>
@@ -45,8 +58,8 @@
     </div>
 
     <main id="canvas" contenteditable="true">
-        <h1>Project Title</h1>
-        <p>Edit this page, then use 'Get My Code' to save to GitHub.</p>
+        <h1>New Project v3</h1>
+        <p>Start building here.</p>
     </main>
 
     <script src="script.js"></script>
