@@ -1,27 +1,26 @@
 body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
-#toolbar { background: #1a1a1a; padding: 12px; display: flex; gap: 10px; position: sticky; top: 0; z-index: 100; align-items: center; }
-.version-tag { color: #888; font-size: 12px; margin-right: 10px; font-weight: bold; text-transform: uppercase; }
-button { padding: 8px 15px; cursor: pointer; border-radius: 4px; border: none; background: #007bff; color: white; font-weight: 500; }
+#toolbar { background: #1a1a1a; padding: 10px; display: flex; gap: 12px; position: sticky; top: 0; z-index: 100; align-items: center; color: white; }
+.version-tag { color: #007bff; font-weight: bold; border: 1px solid #007bff; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+.tool-group { display: flex; align-items: center; gap: 5px; font-size: 12px; border-left: 1px solid #444; padding-left: 10px; }
+button { padding: 8px 12px; cursor: pointer; border-radius: 4px; border: none; background: #333; color: white; font-size: 13px; }
+button:hover { background: #444; }
 #save-btn { background: #28a745; margin-left: auto; }
 
 #canvas { 
     margin: 30px auto; width: 85%; max-width: 900px; background: white; 
-    padding: 50px; min-height: 70vh; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); outline: none;
+    padding: 50px; min-height: 70vh; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); outline: none;
 }
 
-#context-menu {
-    position: absolute; display: none; background: white; border: 1px solid #ccc;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; border-radius: 4px; width: 160px;
-}
+#context-menu { position: absolute; display: none; background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; border-radius: 4px; width: 160px; color: black; }
 .menu-item { padding: 10px 15px; cursor: pointer; font-size: 14px; }
 .menu-item:hover { background: #f0f0f0; }
 .menu-item.delete { color: #dc3545; border-top: 1px solid #eee; }
 
 #saveModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; }
-.modal-content { background: white; width: 70%; margin: 5% auto; padding: 30px; border-radius: 8px; }
-#outputCode { width: 100%; height: 300px; font-family: monospace; margin-bottom: 15px; padding: 10px; display: block; border: 1px solid #ddd; }
+.modal-content { background: white; width: 70%; margin: 5% auto; padding: 30px; border-radius: 8px; color: black; }
+#outputCode { width: 100%; height: 300px; font-family: monospace; margin-bottom: 15px; padding: 10px; display: block; }
 
 .mf-btn { display: inline-block; padding: 12px 20px; background: #004abf; color: white !important; text-decoration: none; border-radius: 4px; margin: 10px; }
-.custom-icon { width: 80px; height: 80px; object-fit: cover; margin: 15px; border-radius: 4px; border: 1px solid #ddd; display: inline-block; }
-.audio-card { display: flex; align-items: center; background: #f8f9fa; padding: 10px 15px; border-radius: 8px; border: 1px solid #dee2e6; margin: 10px 0; gap: 15px; }
-audio { height: 35px; }
+.custom-icon { width: 80px; height: auto; object-fit: contain; margin: 10px; border-radius: 4px; vertical-align: middle; }
+.audio-card { display: flex; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #dee2e6; margin: 10px 0; gap: 15px; color: black; }
+audio { height: 30px; }
